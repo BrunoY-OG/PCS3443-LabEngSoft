@@ -18,5 +18,13 @@ from django.urls import path
 from av_system import views
 
 urlpatterns = [
-    path('funcionario/', views.FuncionarioViewSet.add_funcionario),
+    path('funcionario/add/', 
+            views.FuncionarioViewSet.add_funcionario, 
+            name='add-funcionario'),
+    path('socio/add/', 
+            views.SocioViewSet.add_socio, 
+            name='add-socio'),
+    path('socio/<int:matricula>/', 
+            views.SocioViewSet.retrieve, 
+            name='retrieve'),
 ]
