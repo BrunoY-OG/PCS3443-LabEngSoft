@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import (
     Case, 
@@ -35,6 +36,9 @@ from .authentication import UsuarioBackend, CustomJWTAuthentication
 
 
 class LoginView(APIView):
+
+    
+
     def post(self, request, format=None):
         # try:
             username = request.data.get('username')
@@ -71,10 +75,12 @@ class LoginView(APIView):
         #         status=400
         #     )
         
-class FuncionarioViewSet(APIView):
+class FuncionarioViewSet(GenericAPIView):
     authentication_classes = [CustomJWTAuthentication]
-    permission_classes = [IsAuthenticated]
-    
+
+
+    permission_classes = [IsAuthenticated]    
+    serializer_class = FuncionarioSerializer
     
     def get(self, request, format=None):
         try:
@@ -135,8 +141,11 @@ class FuncionarioViewSet(APIView):
                 status=400
             )
     
-class FuncionarioDetailViewSet(APIView):
+class FuncionarioDetailViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
+
+    serializer_class = FuncionarioSerializer
+
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -157,8 +166,11 @@ class FuncionarioDetailViewSet(APIView):
         except Funcionario.DoesNotExist:
             return Response({"detail": "Funcionario not found."}, status=404)
 
-class AlunoViewSet(APIView):
+class AlunoViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
+
+    serializer_class = AlunoSerializer
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -212,8 +224,11 @@ class AlunoViewSet(APIView):
             )
 
 
-class SocioDetailViewSet(APIView):
+class SocioDetailViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
+
+    serializer_class = SocioSerializer
+
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -269,6 +284,8 @@ class SocioDetailViewSet(APIView):
         
 class UsuarioUserNameViewSet(APIView):
 
+   #serializer_class = 
+
     def get_object(self, name):
         try:
             return Usuario.objects.get(username=name)
@@ -292,8 +309,11 @@ class UsuarioUserNameViewSet(APIView):
             )
         
 
-class SocioViewSet(APIView):
+class SocioViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
+
+    serializer_class = SocioSerializer
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -330,8 +350,11 @@ class SocioViewSet(APIView):
                 status=400
             )
 
-class InstrutorViewSet(APIView):
+class InstrutorViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
+
+    serializer_class = InstrutorSerializer
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -369,8 +392,11 @@ class InstrutorViewSet(APIView):
             )
     
 
-class VooViewSet(APIView):    
+class VooViewSet(GenericAPIView):    
     authentication_classes = [JWTAuthentication]
+
+    serializer_class = VooSerializer
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -433,8 +459,11 @@ class VooViewSet(APIView):
                 status=400
             )
 
-class VooDetailViewSet(APIView):
+class VooDetailViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
+
+    serializer_class = VooSerializer
+
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -461,8 +490,11 @@ class VooDetailViewSet(APIView):
             return Response({"detail": "Voo not found."}, status=404)
         
         
-class VooSocioDetailViewSet(APIView):
+class VooSocioDetailViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
+
+    serializer_class = VooSerializer
+
     permission_classes = [IsAuthenticated]
 
     def get_object(self, matricula):
