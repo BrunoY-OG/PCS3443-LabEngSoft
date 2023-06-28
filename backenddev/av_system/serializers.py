@@ -208,17 +208,13 @@ class VooSerializer(serializers.ModelSerializer):
     
     def validate_data(self, date):
         return _validate_date(date)
-    
-    def validate_parecer(self, parecer):
-        valid_choices = [choice[0] for choice in Voo.NOTA_CONCEITO]
-        if parecer not in valid_choices:
-            raise serializers.ValidationError('Invalid Nota')
-        return parecer
-    
+        
     def validate(self, attrs):
         horario_saida = attrs.get('horario_saida')
         horario_chegada = attrs.get('horario_chegada')
         cur_time = datetime.now().time()
+        if (not attrs.get('id_socio')):
+            raise serializers.ValidationError('Missing ID Socio')
         if (not horario_saida):
             raise serializers.ValidationError('Missing Time Lift off')
         if (not horario_chegada):

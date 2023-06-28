@@ -2,11 +2,28 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.db.models import Case, When, Sum, Count, FloatField
+from django.db.models import (
+    Case, 
+    When, 
+    Sum, 
+    Count, 
+    FloatField
+)
 
-from .models import Socio, Funcionario, Usuario, Voo     
-from .serializers import FuncionarioSerializer, VooSerializer
-from .serializers import SocioSerializer, AlunoSerializer, InstrutorSerializer
+from .models import ( 
+    Socio, 
+    Funcionario, 
+    Usuario, 
+    Voo
+)     
+
+from .serializers import (
+    FuncionarioSerializer, 
+    VooSerializer, 
+    SocioSerializer, 
+    AlunoSerializer, 
+    InstrutorSerializer
+)
 
 from django.contrib.auth import get_user_model, authenticate
 
@@ -38,6 +55,21 @@ class LoginView(APIView):
 class FuncionarioViewSet(APIView):
     permission_classes = [IsAuthenticated]
     
+    
+    def get(self, request, format=None):
+        try:
+            if not request.user.is_funcionario:
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            funcionarios = Funcionario.objects.all()
+            serializer = FuncionarioSerializer(funcionarios, many=True)
+            return Response(serializer.data)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
+
+
     def post(self, request, format=None):
         try:
             if not request.user.is_funcionario:
@@ -72,6 +104,27 @@ class FuncionarioViewSet(APIView):
                 status=400
             )
     
+class FuncionarioDetailViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return Funcionario.objects.get(pk=pk)
+        except Funcionario.DoesNotExist:
+            return None
+        
+    def get(self, request, pk, format=None):
+        try:
+            if (not request.user.is_funcionario):
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            funcionario = self.get_object(pk)
+            if funcionario is None:
+                return Response({"detail": "Funcionario not found."}, status=404)
+            serializer = FuncionarioSerializer(funcionario)
+            return Response(serializer.data)
+        except Funcionario.DoesNotExist:
+            return Response({"detail": "Funcionario not found."}, status=404)
+
 class AlunoViewSet(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -112,34 +165,75 @@ class AlunoViewSet(APIView):
 
     def get(self, request, format=None):
         try:
-            instance = self.get_object()
-            average_parecer = Voo.objects.filter(id_socio=instance) \
-                .aggregate(
-                    total_parecer=Sum(
-                        Case(
-                            When(parecer__in=Voo.NOTA_CONCEITO_mapping.keys(), then=Voo.NOTA_CONCEITO_mapping.get("parecer")),
-                            default=0,
-                            output_field=FloatField()
-                        )
-                    ),
-                    count_parecer=Count(
-                        Case(
-                            When(parecer__in=Voo.NOTA_CONCEITO_mapping.keys(), then=1),
-                            default=0
-                        )
-                    )
-                )
-            if average_parecer['count_parecer'] > 0:
-                instance.nota_ponderada = average_parecer['total_parecer'] / average_parecer['count_parecer']
-            else:
-                instance.nota_ponderada = None
-            serializer = self.get_serializer(instance)
+            isInstrutor = request.user.is_instrutor
+            isFuncionario = request.user.is_funcionario
+            if ((not isFuncionario) and (not isInstrutor)):
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            alunos = Socio.objects.filter(is_aluno=True)
+            serializer = AlunoSerializer(alunos, many=True)
             return Response(serializer.data)
         except:
             return Response(
-                {"error": "error retrieving"},
+                {"error": "error"},
                 status=400
             )
+
+
+class SocioDetailViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return Socio.objects.get(pk=pk)
+        except Socio.DoesNotExist:
+            return None
+
+    def get(self, request, pk, format=None):
+        try:
+            isInstrutor = request.user.is_instrutor
+            isSocio = request.user.is_socio or request.user.is_aluno
+            isFuncionario = request.user.is_funcionario
+            matricula = request.user.matricula
+            if ((isSocio) and (pk != matricula)):
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            elif ((not isFuncionario) and (not isInstrutor)):
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            socio = self.get_object(pk)
+            if socio is None:
+                return Response({"detail": "socio not found."}, status=404)
+            elif socio.is_aluno:
+                average_parecer = Voo.objects.filter(id_socio=pk) \
+                    .aggregate(
+                        total_parecer=Sum(
+                            Case(
+                                When(parecer__in=Voo.NOTA_CONCEITO_mapping.keys(), then=Voo.NOTA_CONCEITO_mapping.get("parecer")),
+                                default=0,
+                                output_field=FloatField()
+                            )
+                        ),
+                        count_parecer=Count(
+                            Case(
+                                When(parecer__in=Voo.NOTA_CONCEITO_mapping.keys(), then=1),
+                                default=0
+                            )
+                        )
+                    )
+                if average_parecer['count_parecer'] > 0:
+                    socio.nota_ponderada = average_parecer['total_parecer'] / average_parecer['count_parecer']
+                else:
+                    socio.nota_ponderada = None
+                serializer = AlunoSerializer(socio)
+            elif socio.is_instrutor:
+                serializer = InstrutorSerializer(socio)
+            else:
+                serializer = SocioSerializer(socio)
+            return Response(serializer.data)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
+        
 
 class SocioViewSet(APIView):
     permission_classes = [IsAuthenticated]
@@ -218,3 +312,73 @@ class InstrutorViewSet(APIView):
 
 class VooViewSet(APIView):    
     permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        try:
+            isInstrutor = request.user.is_instrutor
+            isFuncionario = request.user.is_funcionario
+            if ((not isFuncionario) and (not isInstrutor)):
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+
+            # Retrieve the request data
+            data = request.data
+
+            # Create the Aluno object
+            voo_serializer = VooSerializer(data=data)
+            if voo_serializer.is_valid():
+                if isInstrutor:
+                    if (not data.get('id_instrutor')):
+                        return Response({"error": "invalid ID"}, status=400)
+                    elif (data.get('id_instrutor') != request.user.id_socio):
+                        return Response({"error": "invalid ID"}, status=403)
+                    valid_choices = [choice[0] for choice in Voo.NOTA_CONCEITO]
+                    if (data.get('parecer') not in valid_choices):
+                        return Response({"error": "invalid Parecer"}, status=400)
+                    voo = voo_serializer.save()
+                elif isFuncionario:
+                    if (data.get('id_instrutor')):
+                        return Response({"error": "invalid ID"}, status=400)
+                    if (data.get('parecer')):
+                        return Response({"error": "invalid ID"}, status=400)
+                    voo = voo_serializer.save()
+            else:
+                return Response(voo_serializer.errors, status=400)
+
+            response_data = {
+                "detail": "Voo created successfully.",
+                "aluno_id": voo.id_voo,
+            }
+            return Response(response_data, status=201)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
+    
+
+class VooDetailViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return Voo.objects.get(pk=pk)
+        except Voo.DoesNotExist:
+            return None
+        
+    def get(self, request, pk, format=None):
+        try:
+            isInstrutor = request.user.is_instrutor
+            isSocio = request.user.is_socio or request.user.is_aluno
+            isFuncionario = request.user.is_funcionario
+            matricula = request.user.matricula
+            if ((isSocio) and (pk != matricula)):
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            elif ((not isFuncionario) and (not isInstrutor)):
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            voo = self.get_object(pk)
+            if voo is None:
+                return Response({"detail": "Voo not found."}, status=404)
+            serializer = VooSerializer(voo)
+            return Response(serializer.data)
+        except Funcionario.DoesNotExist:
+            return Response({"detail": "Funcionario not found."}, status=404)

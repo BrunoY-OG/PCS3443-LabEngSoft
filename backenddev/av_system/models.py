@@ -112,13 +112,13 @@ class Voo(models.Model):
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
+    id_usuario = models.IntegerField(primary_key=True, 
+                            auto_created=True, editable=False)
     username = models.CharField(max_length=30, unique=True)
     is_funcionario = models.BooleanField(default=False)
     is_socio = models.BooleanField(default=False)
     is_aluno = models.BooleanField(default=False)
     is_instrutor = models.BooleanField(default=False)
-    id_usuario = models.IntegerField(primary_key=True, 
-                            auto_created=True, editable=False)
     id_funcionario = models.ForeignKey(Funcionario, 
                                         on_delete=models.SET_NULL,
                                         null=True)

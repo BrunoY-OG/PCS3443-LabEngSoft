@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [    
+    'drf_yasg',
     'av_system.apps.AvSystemConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -142,4 +143,8 @@ JWT_AUTH = {
     'JWT_SECRET_KEY': 'hwsN3UVb93QRFeMccmdjEBmpBTvjLGqu2nXbtvq6X2pqxENlPnO4OVt5Y2fRacQclB4',
     'JWT_EXPIRATION_DELTA': timedelta(days=7),  # Set the token expiration time
     # Other JWT settings...
+}
+
+SWAGGER_SETTINGS = {
+    'DEFAULT_INFO': 'backend.urls.swagger_info',
 }
