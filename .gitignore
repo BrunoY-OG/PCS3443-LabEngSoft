@@ -1,1 +1,3 @@
-backenddev/backend/settings.py
+/backenddev/backendenv/
+/backenddev/backup/
+/backenddev/migrations/
