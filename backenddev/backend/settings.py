@@ -149,3 +149,4 @@ SWAGGER_SETTINGS = {
 AUTHENTICATION_BACKENDS = [
     'av_system.authentication.UsuarioBackend',
 ]
+APPEND_SLASH = False

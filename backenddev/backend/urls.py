@@ -18,6 +18,7 @@ from django.urls import path
 from rest_framework.permissions import AllowAny
 from av_system.views import (
     LoginView,
+    UsuarioUserNameViewSet,
     FuncionarioViewSet,
     FuncionarioDetailViewSet,
     AlunoViewSet,
@@ -26,6 +27,7 @@ from av_system.views import (
     InstrutorViewSet,
     VooViewSet,
     VooDetailViewSet,
+    VooSocioDetailViewSet
 )
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -45,6 +47,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
+    path('usuario/', UsuarioUserNameViewSet.as_view(), name='username-availability-check'),
     path('funcionarios/', FuncionarioViewSet.as_view(), name='funcionario-list'),
     path('funcionarios/<int:pk>/', FuncionarioDetailViewSet.as_view(), name='funcionario-detail'),
     path('alunos/', AlunoViewSet.as_view(), name='aluno-list'),
@@ -52,7 +55,7 @@ urlpatterns = [
     path('socios/<int:pk>/', SocioDetailViewSet.as_view(), name='socio-detail'),
     path('instrutores/', InstrutorViewSet.as_view(), name='instrutor-list'),
     path('voos/', VooViewSet.as_view(), name='voo-list'),
+    path('voos/socio/<int:pk>/', VooSocioDetailViewSet.as_view(), name='voo-list-socio'),
     path('voos/<int:pk>/', VooDetailViewSet.as_view(), name='voo-detail'), 
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),    
 ]

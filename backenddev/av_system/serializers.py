@@ -173,30 +173,6 @@ class InstrutorSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Invalid Categoria')
         return attrs
 
-# class UsuarioSerializer(serializers.ModelSerializer):
-#     employee_set = FuncionarioSerializer(allow_null=True)
-#     associate_set = SocioSerializer(allow_null=True)
-#     id_usuario = serializers.HiddenField(default = CurrentViewKwargs("pk"))
-#     username = serializers.CharField(
-#         validators=[UniqueValidator(queryset=Usuario.objects.all())]
-#     )
-#     class Meta:
-#         model = Usuario
-#         fields = '__all__'
-#     def validate_username(self, value):
-#         if (len(value)<4):
-#             raise serializers.ValidationError("Username too short (at least 4 chars)")
-#     def validate_password(self, value):
-#         if (len(value)<4):
-#             raise serializers.ValidationError("Password too short (at least 4 chars)")
-#     # def validate(self, attrs):
-#     #     id_func = attrs.get('id_funcionario')
-#     #     id_soc = attrs.get('id_socio')
-
-#     #     if ((not id_func) and (not id_soc)):
-#     #         raise serializers.ValidationError("At least one of id_funcionario or id_socio must not be null")
-
-#     #     return attrs
 
 class VooSerializer(serializers.ModelSerializer):
     teacher_set = SocioSerializer(read_only=True)

@@ -35,7 +35,7 @@ User = get_user_model()
 
 class LoginView(APIView):
     def post(self, request, format=None):
-        # try:
+        try:
             username = request.data.get('username')
             password = request.data.get('password')
             # Authenticate the Usuario model
@@ -49,11 +49,11 @@ class LoginView(APIView):
                 return Response(response_data, status=200)
             else:
                 return Response({'detail': 'Invalid credentials'}, status=401)
-        # except:
-        #     return Response(
-        #         {"error": "error"},
-        #         status=400
-        #     )
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
         
 class FuncionarioViewSet(APIView):
     permission_classes = [IsAuthenticated]
@@ -197,10 +197,9 @@ class SocioDetailViewSet(APIView):
             isSocio = request.user.is_socio or request.user.is_aluno
             isFuncionario = request.user.is_funcionario
             matricula = request.user.matricula
-            if ((isSocio) and (pk != matricula)):
-                return Response({"detail": "You do not have permission to perform this action."}, status=403)
-            elif ((not isFuncionario) and (not isInstrutor)):
-                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            if ((not isFuncionario) and (not isInstrutor)):
+                if ((isSocio) and (pk != matricula)):
+                    return Response({"detail": "You do not have permission to perform this action."}, status=403)
             socio = self.get_object(pk)
             if socio is None:
                 return Response({"detail": "socio not found."}, status=404)
@@ -237,7 +236,29 @@ class SocioDetailViewSet(APIView):
                 status=400
             )
         
+class UsuarioUserNameViewSet(APIView):
 
+    def get_object(self, name):
+        try:
+            return Usuario.objects.get(username=name)
+        except Usuario.DoesNotExist:
+            return None
+
+
+    def post(self, request, format=None):
+        try:           
+            username = request.data.get('username')
+            user = self.get_object(username)
+            if user is None:
+                return Response({"usernameFree":True}, status=200)
+            else:
+                return Response({"usernameFree":False}, status=200)
+
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
 class SocioViewSet(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -326,7 +347,6 @@ class VooViewSet(APIView):
             # Retrieve the request data
             data = request.data
 
-            # Create the Aluno object
             voo_serializer = VooSerializer(data=data)
             if voo_serializer.is_valid():
                 if isInstrutor:
@@ -359,6 +379,24 @@ class VooViewSet(APIView):
             )
     
 
+    def get(self, request, format=None):
+        try:
+            isFuncionario = request.user.is_funcionario
+            isInstrutor = request.user.is_instrutor
+            isSocio = request.user.is_socio or request.user.is_aluno
+            if (isFuncionario or isInstrutor):
+                voos = Voo.objects.all()
+            elif (isSocio):
+                socioID = request.user.matricula
+                voos = Voo.objects.filter(id_socio=socioID)
+            serializer = VooSerializer(voos, many=True)
+            return Response(serializer.data)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
+
 class VooDetailViewSet(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -374,14 +412,44 @@ class VooDetailViewSet(APIView):
             isSocio = request.user.is_socio or request.user.is_aluno
             isFuncionario = request.user.is_funcionario
             matricula = request.user.matricula
-            if ((isSocio) and (pk != matricula)):
-                return Response({"detail": "You do not have permission to perform this action."}, status=403)
-            elif ((not isFuncionario) and (not isInstrutor)):
-                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            if ((not isFuncionario) and (not isInstrutor)):
+                if ((isSocio) and (pk != matricula)):
+                    return Response({"detail": "You do not have permission to perform this action."}, status=403)
             voo = self.get_object(pk)
             if voo is None:
                 return Response({"detail": "Voo not found."}, status=404)
             serializer = VooSerializer(voo)
             return Response(serializer.data)
-        except Funcionario.DoesNotExist:
-            return Response({"detail": "Funcionario not found."}, status=404)
+        except:
+            return Response({"detail": "Voo not found."}, status=404)
+        
+        
+class VooSocioDetailViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, matricula):
+        try:
+            return Voo.objects.get(matricula=matricula)
+        except Voo.DoesNotExist:
+            return None
+        
+    def post(self, request, pk, format=None):
+        try:
+            isInstrutor = request.user.is_instrutor
+            isSocio = request.user.is_socio or request.user.is_aluno
+            isFuncionario = request.user.is_funcionario
+            if (pk is None):
+                return Response({"error": "missing matricula param."}, 
+                            status=404)
+            elif ((not isFuncionario) and (not isInstrutor)):
+                if ((isSocio) and (request.user.matricula != pk)):
+                    return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            voo = self.get_object(pk)
+            if voo is None:
+                return Response({"detail": "Voo not found."}, 
+                                status=404)
+            serializer = VooSerializer(voo, many=True)
+            return Response(serializer.data)
+        except:
+            return Response({"detail": "Voo not found."}, 
+                            status=404)
