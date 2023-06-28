@@ -64,7 +64,7 @@ def _validate_addresslength(value):
 
 
 class FuncionarioSerializer(serializers.ModelSerializer):    
-    id_funcionario = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Funcionario
         fields = '__all__'
@@ -78,7 +78,7 @@ class FuncionarioSerializer(serializers.ModelSerializer):
         return _validate_addresslength(endereco)
     
 class SocioSerializer(serializers.ModelSerializer):
-    matricula = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Socio
         fields = '__all__'
@@ -109,7 +109,7 @@ class SocioSerializer(serializers.ModelSerializer):
         return attrs
 
 class AlunoSerializer(serializers.ModelSerializer):
-    matricula = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Socio
         fields = '__all__'
@@ -139,7 +139,7 @@ class AlunoSerializer(serializers.ModelSerializer):
     
 
 class InstrutorSerializer(serializers.ModelSerializer):
-    matricula = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Socio
         fields = '__all__'
@@ -177,7 +177,7 @@ class InstrutorSerializer(serializers.ModelSerializer):
 class VooSerializer(serializers.ModelSerializer):
     teacher_set = SocioSerializer(read_only=True)
     associate_set = SocioSerializer(read_only=True)
-    id_voo = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Voo
         fields = '__all__'

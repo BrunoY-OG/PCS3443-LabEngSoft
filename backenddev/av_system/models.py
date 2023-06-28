@@ -49,13 +49,12 @@ class CustomUserManager(BaseUserManager):
     
 
 class Funcionario(models.Model):
-    id_funcionario = models.IntegerField(primary_key=True)
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11, unique=True)
     data_nascimento = models.DateField()
     endereco = models.CharField(max_length=100)
     class Meta:
-        indexes = [ models.Index(fields=["id_funcionario"]) ]
+        indexes = [ models.Index(fields=["id"]) ]
         ordering = ["nome"]
 
 class Socio(models.Model):
@@ -65,7 +64,6 @@ class Socio(models.Model):
         ("I", "Instrutor")
         ]
     
-    matricula = models.IntegerField(primary_key=True)
     categoria = models.CharField(max_length=9, choices=CATEGORIAS)
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11)
@@ -79,7 +77,7 @@ class Socio(models.Model):
     instituicao_diploma = models.CharField(max_length=100, null=True)
     class Meta:
         unique_together = ("cpf", "categoria")
-        indexes = [models.Index(fields=["matricula"])]
+        indexes = [models.Index(fields=["id"])]
 
 class Voo(models.Model):
     NOTA_CONCEITO = [
@@ -96,7 +94,6 @@ class Voo(models.Model):
         "D": 1.0
     }
     
-    id_voo = models.IntegerField(primary_key=True)
     data = models.DateField()
     horario_saida = models.TimeField()
     horario_chegada = models.TimeField()
@@ -104,12 +101,11 @@ class Voo(models.Model):
     id_socio = models.ForeignKey(Socio, related_name="socio_voo", on_delete=models.DO_NOTHING)
     id_instrutor = models.ForeignKey(Socio, related_name="instrutor_voo", on_delete=models.DO_NOTHING)
     class Meta:
-        indexes = [ models.Index(fields=["id_voo"]) ]
+        indexes = [ models.Index(fields=["id"]) ]
         ordering = ["data","horario_saida"]
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
-    id_usuario = models.IntegerField(primary_key=True)
     username = models.CharField(max_length=30, unique=True)
     is_funcionario = models.BooleanField(default=False)
     is_socio = models.BooleanField(default=False)

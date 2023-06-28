@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3tx!rx18$l*z_sepg*m7l8g%z%3s7+e-@%^py6c8o27b(_5xmg'
+SECRET_KEY = 'hyiwIBSf-V1QkmHNkZHlD8VkLLJK71hI-xFaxF1Axmw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -34,7 +34,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [    
     'drf_yasg',
-    'av_system.apps.AvSystemConfig',
+    'av_system',
+    # 'av_system.apps.AvSystemConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -135,12 +136,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        # 'av_system.authentication.CustomJWTAuthentication',
     ],
 }
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id_usuario',
-    'USER_ID_CLAIM': 'user_id',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'id',
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    # other settings...
 }
 
 SWAGGER_SETTINGS = {

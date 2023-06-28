@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.db.models import (
     Case, 
     When, 
@@ -29,17 +30,21 @@ from django.contrib.auth import get_user_model, authenticate
 
 User = get_user_model()
 
-
+from .authentication import UsuarioBackend, CustomJWTAuthentication
 
 
 
 class LoginView(APIView):
     def post(self, request, format=None):
-        try:
+        # try:
             username = request.data.get('username')
             password = request.data.get('password')
             # Authenticate the Usuario model
-            user = authenticate(request, username=username, password=password)
+            # user = authenticate(request, username=username, password=password) 
+            # Use the custom authentication backend to authenticate the user
+            backend = UsuarioBackend()
+            user = backend.authenticate(request, username=username, password=password)
+
             if user is not None:
                 refresh = RefreshToken.for_user(user)
                 response_data = {
@@ -48,21 +53,44 @@ class LoginView(APIView):
                 }
                 return Response(response_data, status=200)
             else:
-                return Response({'detail': 'Invalid credentials'}, status=401)
-        except:
-            return Response(
-                {"error": "error"},
-                status=400
-            )
+                # If the user is not authenticated via credentials, try token authentication
+                user = backend.authenticate_with_token(request)
+                if user is not None:
+                    refresh = RefreshToken.for_user(user)
+                    response_data = {
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                    }
+                    return Response(response_data, status=200)
+                else:
+                    return Response({'detail': 'Invalid credentials'}, status=401)
+        
+        # except:
+        #     return Response(
+        #         {"error": "error"},
+        #         status=400
+        #     )
         
 class FuncionarioViewSet(APIView):
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
     
     
     def get(self, request, format=None):
         try:
-            if not request.user.is_funcionario:
-                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            try:
+                auth_header = request.headers['Authorization']
+            except KeyError:
+                return Response({'detail': 'Authentication credentials were not found.'}, status=401)
+
+            print(auth_header)
+            try:
+                user = self.request.user
+            except:
+                return Response({'detail': 'Invalid or expired token.'}, status=401)
+            
+            if not user.is_funcionario:
+                return Response({"detail": "You do not have permission to perform this action."}, status=403) 
             funcionarios = Funcionario.objects.all()
             serializer = FuncionarioSerializer(funcionarios, many=True)
             return Response(serializer.data)
@@ -92,13 +120,13 @@ class FuncionarioViewSet(APIView):
                 return Response(funcionario_serializer.errors, status=400)
 
 
-            usuario = User.objects.create_funcionario(username=username, password=password, id_funcionario=funcionario.id_funcionario)
+            usuario = User.objects.create_funcionario(username=username, password=password, id_funcionario=funcionario.id)
 
             # Return the response
             response_data = {
                 "detail": "Funcionario and Usuario created successfully.",
-                "funcionario_id": funcionario.id_funcionario,
-                "usuario_id": usuario.id_usuario
+                "funcionario_id": funcionario.id,
+                "usuario_id": usuario.id
             }
             return Response(response_data, status=201)
         except:
@@ -108,6 +136,7 @@ class FuncionarioViewSet(APIView):
             )
     
 class FuncionarioDetailViewSet(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -129,6 +158,7 @@ class FuncionarioDetailViewSet(APIView):
             return Response({"detail": "Funcionario not found."}, status=404)
 
 class AlunoViewSet(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -150,13 +180,13 @@ class AlunoViewSet(APIView):
                 return Response(aluno_serializer.errors, status=400)
 
 
-            usuario = User.objects.create_aluno(username=username, password=password, matricula=aluno.matricula)
+            usuario = User.objects.create_aluno(username=username, password=password, matricula=aluno.id)
 
             # Return the response
             response_data = {
                 "detail": "Aluno and Usuario created successfully.",
-                "aluno_id": aluno.matricula,
-                "usuario_id": usuario.id_usuario
+                "aluno_id": aluno.id,
+                "usuario_id": usuario.id
             }
             return Response(response_data, status=201)
         except:
@@ -183,6 +213,7 @@ class AlunoViewSet(APIView):
 
 
 class SocioDetailViewSet(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -259,7 +290,10 @@ class UsuarioUserNameViewSet(APIView):
                 {"error": "error"},
                 status=400
             )
+        
+
 class SocioViewSet(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -281,13 +315,13 @@ class SocioViewSet(APIView):
                 return Response(socio_serializer.errors, status=400)
 
 
-            usuario = User.objects.create_socio(username=username, password=password, matricula=socio.matricula)
+            usuario = User.objects.create_socio(username=username, password=password, matricula=socio.id)
 
             # Return the response
             response_data = {
                 "detail": "Socio and Usuario created successfully.",
-                "socio_id": socio.matricula,
-                "usuario_id": usuario.id_usuario
+                "socio_id": socio.id,
+                "usuario_id": usuario.id
             }
             return Response(response_data, status=201)
         except:
@@ -297,6 +331,7 @@ class SocioViewSet(APIView):
             )
 
 class InstrutorViewSet(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -318,13 +353,13 @@ class InstrutorViewSet(APIView):
                 return Response(instrutor_serializer.errors, status=400)
 
 
-            usuario = User.objects.create_instrutor(username=username, password=password, matricula=instrutor.matricula)
+            usuario = User.objects.create_instrutor(username=username, password=password, matricula=instrutor.id)
 
             # Return the response
             response_data = {
                 "detail": "Instrutor and Usuario created successfully.",
-                "instrutor_id": instrutor.matricula,
-                "usuario_id": usuario.id_usuario
+                "instrutor_id": instrutor.id,
+                "usuario_id": usuario.id
             }
             return Response(response_data, status=201)
         except:
@@ -335,6 +370,7 @@ class InstrutorViewSet(APIView):
     
 
 class VooViewSet(APIView):    
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -369,7 +405,7 @@ class VooViewSet(APIView):
 
             response_data = {
                 "detail": "Voo created successfully.",
-                "aluno_id": voo.id_voo,
+                "voo_id": voo.id,
             }
             return Response(response_data, status=201)
         except:
@@ -398,6 +434,7 @@ class VooViewSet(APIView):
             )
 
 class VooDetailViewSet(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -425,6 +462,7 @@ class VooDetailViewSet(APIView):
         
         
 class VooSocioDetailViewSet(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def get_object(self, matricula):
