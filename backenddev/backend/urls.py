@@ -17,14 +17,12 @@ Including another URLconf
 from django.urls import path
 from av_system import views
 
-urlpatterns = [
-    path('funcionario/add/', 
-            views.FuncionarioViewSet.add_funcionario, 
-            name='add-funcionario'),
-    path('socio/add/', 
-            views.SocioViewSet.add_socio, 
-            name='add-socio'),
-    path('socio/<int:matricula>/', 
-            views.SocioViewSet.retrieve, 
-            name='retrieve'),
+urlpatterns = [    
+    path('api/login/', views.LoginView.as_view(), name='login'),
+    path('api/funcionario/', views.FuncionarioViewSet.as_view(), name='create_funcionario'),
+    path('api/aluno/', views.AlunoViewSet.as_view(), name='create_aluno'),
+    path('aluno/<int:pk>/', views.AlunoViewSet.as_view(), name='get-aluno'),
+    path('api/socio/', views.SocioViewSet.as_view(), name='create_socio'),
+    path('api/instrutor/', views.InstrutorViewSet.as_view(), name='create_instrutor'),
+
 ]

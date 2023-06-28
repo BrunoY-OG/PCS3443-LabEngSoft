@@ -62,6 +62,7 @@ def _validate_addresslength(value):
     return value
 
 
+
 class FuncionarioSerializer(serializers.ModelSerializer):    
     id_funcionario = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
@@ -99,13 +100,68 @@ class SocioSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         cat = attrs.get('categoria')
 
-        if cat == 'A':
-            nota = attrs.get('nota_ponderada')
-        elif cat == 'P':
+        if cat == 'P':
             breve = attrs.get('breve')
             if (not breve):
                 raise serializers.ValidationError('Invalid Breve')
-        elif cat == 'I':
+        else:
+            raise serializers.ValidationError('Invalid Categoria')
+        return attrs
+
+class AlunoSerializer(serializers.ModelSerializer):
+    matricula = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+    class Meta:
+        model = Socio
+        fields = '__all__'
+    
+    def validate_data_nascimento(self, dob):
+        return _validate_data_nascimento(dob)
+    def validate_cpf(self, cpf):
+        return _validate_cpf(cpf)
+    def validate_nome(self, nome):
+        return _validate_namelength(nome)
+    def validate_endereco(self, endereco):
+        return _validate_addresslength(endereco)
+    
+    def validate_categoria(value):
+        valid_choices = [choice[0] for choice in Socio.CATEGORIAS]
+        if value not in valid_choices:
+            raise serializers.ValidationError('Invalid Categoria')
+
+    def validate(self, attrs):
+        cat = attrs.get('categoria')
+
+        if cat == 'A':
+            nota = attrs.get('nota_ponderada')
+        else:
+            raise serializers.ValidationError('Invalid Categoria')
+        return attrs
+    
+
+class InstrutorSerializer(serializers.ModelSerializer):
+    matricula = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+    class Meta:
+        model = Socio
+        fields = '__all__'
+    
+    def validate_data_nascimento(self, dob):
+        return _validate_data_nascimento(dob)
+    def validate_cpf(self, cpf):
+        return _validate_cpf(cpf)
+    def validate_nome(self, nome):
+        return _validate_namelength(nome)
+    def validate_endereco(self, endereco):
+        return _validate_addresslength(endereco)
+    
+    def validate_categoria(value):
+        valid_choices = [choice[0] for choice in Socio.CATEGORIAS]
+        if value not in valid_choices:
+            raise serializers.ValidationError('Invalid Categoria')
+
+    def validate(self, attrs):
+        cat = attrs.get('categoria')
+
+        if cat == 'I':
             breve = attrs.get('breve')
             curso = attrs.get('nome_do_curso')
             data_diploma = attrs.get('data_diploma')
@@ -117,30 +173,30 @@ class SocioSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Invalid Categoria')
         return attrs
 
-class UsuarioSerializer(serializers.ModelSerializer):
-    employee_set = FuncionarioSerializer(allow_null=True)
-    associate_set = SocioSerializer(allow_null=True)
-    id_usuario = serializers.HiddenField(default = CurrentViewKwargs("pk"))
-    username = serializers.CharField(
-        validators=[UniqueValidator(queryset=Usuario.objects.all())]
-    )
-    class Meta:
-        model = Usuario
-        fields = '__all__'
-    def validate_username(self, value):
-        if (len(value)<4):
-            raise serializers.ValidationError("Username too short (at least 4 chars)")
-    def validate_password(self, value):
-        if (len(value)<4):
-            raise serializers.ValidationError("Password too short (at least 4 chars)")
-    # def validate(self, attrs):
-    #     id_func = attrs.get('id_funcionario')
-    #     id_soc = attrs.get('id_socio')
+# class UsuarioSerializer(serializers.ModelSerializer):
+#     employee_set = FuncionarioSerializer(allow_null=True)
+#     associate_set = SocioSerializer(allow_null=True)
+#     id_usuario = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+#     username = serializers.CharField(
+#         validators=[UniqueValidator(queryset=Usuario.objects.all())]
+#     )
+#     class Meta:
+#         model = Usuario
+#         fields = '__all__'
+#     def validate_username(self, value):
+#         if (len(value)<4):
+#             raise serializers.ValidationError("Username too short (at least 4 chars)")
+#     def validate_password(self, value):
+#         if (len(value)<4):
+#             raise serializers.ValidationError("Password too short (at least 4 chars)")
+#     # def validate(self, attrs):
+#     #     id_func = attrs.get('id_funcionario')
+#     #     id_soc = attrs.get('id_socio')
 
-    #     if ((not id_func) and (not id_soc)):
-    #         raise serializers.ValidationError("At least one of id_funcionario or id_socio must not be null")
+#     #     if ((not id_func) and (not id_soc)):
+#     #         raise serializers.ValidationError("At least one of id_funcionario or id_socio must not be null")
 
-    #     return attrs
+#     #     return attrs
 
 class VooSerializer(serializers.ModelSerializer):
     teacher_set = SocioSerializer(read_only=True)

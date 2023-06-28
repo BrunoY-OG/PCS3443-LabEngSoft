@@ -1,153 +1,116 @@
-from rest_framework.decorators import action
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import status
-from django.db import models
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Case, When, Sum, Count, FloatField
 
 from .models import Socio, Funcionario, Usuario, Voo     
-from .serializers import SocioSerializer, FuncionarioSerializer, UsuarioSerializer, VooSerializer
+from .serializers import FuncionarioSerializer, VooSerializer
+from .serializers import SocioSerializer, AlunoSerializer, InstrutorSerializer
 
-class FuncionarioViewSet(ModelViewSet):
-    queryset = Funcionario.objects.all()
-    serializer_class = FuncionarioSerializer
-    
-    def get_queryset(self):
-        return self.queryset
-    
-    @action(
-        methods = ["POST"],
-        detail = False,
-        serializer_class = FuncionarioSerializer,
-        url_path = "add-funcionario",
-    )
+from django.contrib.auth import get_user_model, authenticate
 
-    def add_funcionario(self, request, *args, **kwargs):
+
+User = get_user_model()
+
+class LoginView(APIView):
+    def post(self, request, format=None):
         try:
-            funcionario_data = {
-                "nome": request.data.get("nome"),
-                "cpf": request.data.get("cpf"),
-                "data_nascimento": request.data.get("data_nascimento"),
-                "endereco": request.data.get("endereco"),
-            }
-            usuario_data = {
-                "username": request.data.get("username"),
-                "password": request.data.get("password"),
-                "id_funcionario": -1
-            }
-            
-            funcionario_serializer = self.get_serializer(data=funcionario_data)
-            usuario_serializer = UsuarioSerializer(data=usuario_data)
-            
-            if funcionario_serializer.is_valid(raise_exception=True):            
-                if usuario_serializer.is_valid(raise_exception=True):
-                    funcionario_instance = self.perform_create(funcionario_serializer)
-                    usuario_data = {
-                        "username": request.data.get("username"),
-                        "password": request.data.get("password"),
-                        "id_funcionario": funcionario_instance.id_funcionario
-                    }
-                    usuario_serializer = UsuarioSerializer(data=usuario_data)
-                    if usuario_serializer.is_valid(raise_exception=True):
-                        self.perform_create(usuario_serializer)
-                        headers = self.get_success_headers(funcionario_serializer.data)
-                        return Response(funcionario_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-                else:
-                    return Response(
-                        {"error": "Invalid Usuario Fields"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+            username = request.data.get('username')
+            password = request.data.get('password')
+            # For example, using Django's authenticate() function
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                refresh = RefreshToken.for_user(user)
+                response_data = {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                }
+                return Response(response_data, status=200)
             else:
-                return Response(
-                    {"error": "Invalid Funcionario Fields"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response({'detail': 'Invalid credentials'}, status=401)
         except:
             return Response(
-                {"error": "Invalid Funcionario Fields"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "error"},
+                status=400
             )
         
-class SocioViewSet(ModelViewSet):
-    queryset = Socio.objects.all()
-    serializer_class = SocioSerializer
+class FuncionarioViewSet(APIView):
+    permission_classes = [IsAuthenticated]
     
-    def get_queryset(self):
-        return self.queryset
-    
-    @action(
-        methods = ["POST"],
-        detail = False,
-        serializer_class = SocioSerializer,
-        url_path = "add-socio",
-    )    
-    def add_socio(self, request, *args, **kwargs):
+    def post(self, request, format=None):
         try:
-            socio_data = {
-                "nome": request.data.get("nome"),
-                "cpf": request.data.get("cpf"),
-                "data_nascimento": request.data.get("data_nascimento"),
-                "endereco": request.data.get("endereco"),
-                "categoria": request.data.get("categoria"),
-                "nome": request.data.get("nome"),
-                "cpf": request.data.get("cpf"),
-                "data_nascimento": request.data.get("data_nascimento"),
-                "endereco": request.data.get("endereco"),
-                "email": request.data.get("email"),
-                "endereco": request.data.get("endereco"),
-                "breve": request.data.get("breve"),
-                "nome_do_curso": request.data.get("nome_do_curso"),
-                "data_diploma": request.data.get("data_diploma"),
-                "instituicao_diploma": request.data.get("instituicao_diploma")
-            }
-            usuario_data = {
-                "username": request.data.get("username"),
-                "password": request.data.get("password"),
-                "id_socio": -1
-            }
-            
-            funcionario_serializer = self.get_serializer(data=socio_data)
-            usuario_serializer = UsuarioSerializer(data=usuario_data)
-            
-            if funcionario_serializer.is_valid(raise_exception=True):            
-                if usuario_serializer.is_valid(raise_exception=True):
-                    socio_instance = self.perform_create(funcionario_serializer)
-                    usuario_data = {
-                        "username": request.data.get("username"),
-                        "password": request.data.get("password"),
-                        "id_socio": socio_instance.id_socio
-                    }
-                    usuario_serializer = UsuarioSerializer(data=usuario_data)
-                    if usuario_serializer.is_valid(raise_exception=True):
-                        self.perform_create(usuario_serializer)
-                        headers = self.get_success_headers(funcionario_serializer.data)
-                        return Response(funcionario_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-                else:
-                    return Response(
-                        {"error": "Invalid Usuario Fields"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+            if not request.user.is_funcionario:
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+
+            # Retrieve the request data
+            data = request.data
+            # Create the Usuario object
+            username = data.get('username')
+            password = data.get('password')
+
+            # Create the Funcionario object
+            funcionario_serializer = FuncionarioSerializer(data=data)
+            if funcionario_serializer.is_valid():
+                funcionario = funcionario_serializer.save()
             else:
-                return Response(
-                    {"error": "Invalid Usuario Fields"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                return Response(funcionario_serializer.errors, status=400)
+
+
+            usuario = User.objects.create_funcionario(username=username, password=password, id_funcionario=funcionario.id_funcionario)
+
+            # Return the response
+            response_data = {
+                "detail": "Funcionario and Usuario created successfully.",
+                "funcionario_id": funcionario.id_funcionario,
+                "usuario_id": usuario.id_usuario
+            }
+            return Response(response_data, status=201)
         except:
             return Response(
-                {"error": "Invalid Usuario Fields"},
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "error"},
+                status=400
             )
-
     
-    @action(
-        methods = ["GET"],
-        detail = True,
-        serializer_class = SocioSerializer,
-        url_path = "socio",
-    )
+class AlunoViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        try:
+            if not request.user.is_funcionario:
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+
+            # Retrieve the request data
+            data = request.data
+            # Create the Usuario object
+            username = data.get('username')
+            password = data.get('password')
+
+            # Create the Aluno object
+            aluno_serializer = AlunoSerializer(data=data)
+            if aluno_serializer.is_valid():
+                aluno = aluno_serializer.save()
+            else:
+                return Response(aluno_serializer.errors, status=400)
+
+
+            usuario = User.objects.create_aluno(username=username, password=password, matricula=aluno.matricula)
+
+            # Return the response
+            response_data = {
+                "detail": "Aluno and Usuario created successfully.",
+                "aluno_id": aluno.matricula,
+                "usuario_id": usuario.id_usuario
+            }
+            return Response(response_data, status=201)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
     
 
-    def retrieve(self, request, *args, **kwargs):
+    def get(self, request, format=None):
         try:
             instance = self.get_object()
             average_parecer = Voo.objects.filter(id_socio=instance) \
@@ -175,5 +138,83 @@ class SocioViewSet(ModelViewSet):
         except:
             return Response(
                 {"error": "error retrieving"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=400
             )
+
+class SocioViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        try:
+            if not request.user.is_funcionario:
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+
+            # Retrieve the request data
+            data = request.data
+            # Create the Usuario object
+            username = data.get('username')
+            password = data.get('password')
+
+            # Create the Socio object
+            socio_serializer = SocioSerializer(data=data)
+            if socio_serializer.is_valid():
+                socio = socio_serializer.save()
+            else:
+                return Response(socio_serializer.errors, status=400)
+
+
+            usuario = User.objects.create_socio(username=username, password=password, matricula=socio.matricula)
+
+            # Return the response
+            response_data = {
+                "detail": "Socio and Usuario created successfully.",
+                "socio_id": socio.matricula,
+                "usuario_id": usuario.id_usuario
+            }
+            return Response(response_data, status=201)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
+
+class InstrutorViewSet(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        try:
+            if not request.user.is_funcionario:
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+
+            # Retrieve the request data
+            data = request.data
+            # Create the Usuario object
+            username = data.get('username')
+            password = data.get('password')
+
+            # Create the Instrutor object
+            instrutor_serializer = InstrutorSerializer(data=data)
+            if instrutor_serializer.is_valid():
+                instrutor = instrutor_serializer.save()
+            else:
+                return Response(instrutor_serializer.errors, status=400)
+
+
+            usuario = User.objects.create_instrutor(username=username, password=password, matricula=instrutor.matricula)
+
+            # Return the response
+            response_data = {
+                "detail": "Instrutor and Usuario created successfully.",
+                "instrutor_id": instrutor.matricula,
+                "usuario_id": usuario.id_usuario
+            }
+            return Response(response_data, status=201)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
+    
+
+class VooViewSet(APIView):    
+    permission_classes = [IsAuthenticated]
