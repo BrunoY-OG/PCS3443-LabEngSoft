@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.generics import GenericAPIView
 from django.db.models import (
     Case, 
     When, 
@@ -34,6 +35,9 @@ User = get_user_model()
 
 
 class LoginView(APIView):
+
+    
+
     def post(self, request, format=None):
         try:
             username = request.data.get('username')
@@ -55,9 +59,11 @@ class LoginView(APIView):
                 status=400
             )
         
-class FuncionarioViewSet(APIView):
-    permission_classes = [IsAuthenticated]
-    
+class FuncionarioViewSet(GenericAPIView):
+
+    serializer_class = FuncionarioSerializer
+
+    permission_classes = [IsAuthenticated]    
     
     def get(self, request, format=None):
         try:
@@ -107,7 +113,10 @@ class FuncionarioViewSet(APIView):
                 status=400
             )
     
-class FuncionarioDetailViewSet(APIView):
+class FuncionarioDetailViewSet(GenericAPIView):
+
+    serializer_class = FuncionarioSerializer
+
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -128,7 +137,10 @@ class FuncionarioDetailViewSet(APIView):
         except Funcionario.DoesNotExist:
             return Response({"detail": "Funcionario not found."}, status=404)
 
-class AlunoViewSet(APIView):
+class AlunoViewSet(GenericAPIView):
+
+    serializer_class = AlunoSerializer
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -182,7 +194,10 @@ class AlunoViewSet(APIView):
             )
 
 
-class SocioDetailViewSet(APIView):
+class SocioDetailViewSet(GenericAPIView):
+
+    serializer_class = SocioSerializer
+
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -238,6 +253,8 @@ class SocioDetailViewSet(APIView):
         
 class UsuarioUserNameViewSet(APIView):
 
+   #serializer_class = 
+
     def get_object(self, name):
         try:
             return Usuario.objects.get(username=name)
@@ -259,7 +276,10 @@ class UsuarioUserNameViewSet(APIView):
                 {"error": "error"},
                 status=400
             )
-class SocioViewSet(APIView):
+class SocioViewSet(GenericAPIView):
+
+    serializer_class = SocioSerializer
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -296,7 +316,10 @@ class SocioViewSet(APIView):
                 status=400
             )
 
-class InstrutorViewSet(APIView):
+class InstrutorViewSet(GenericAPIView):
+
+    serializer_class = InstrutorSerializer
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -334,7 +357,10 @@ class InstrutorViewSet(APIView):
             )
     
 
-class VooViewSet(APIView):    
+class VooViewSet(GenericAPIView):    
+
+    serializer_class = VooSerializer
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
@@ -397,7 +423,10 @@ class VooViewSet(APIView):
                 status=400
             )
 
-class VooDetailViewSet(APIView):
+class VooDetailViewSet(GenericAPIView):
+
+    serializer_class = VooSerializer
+
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
@@ -424,7 +453,10 @@ class VooDetailViewSet(APIView):
             return Response({"detail": "Voo not found."}, status=404)
         
         
-class VooSocioDetailViewSet(APIView):
+class VooSocioDetailViewSet(GenericAPIView):
+
+    serializer_class = VooSerializer
+
     permission_classes = [IsAuthenticated]
 
     def get_object(self, matricula):
