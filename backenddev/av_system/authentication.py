@@ -25,36 +25,20 @@ class UsuarioBackend(BaseBackend):
     def authenticate_with_token(self, request):
         authenticator = CustomJWTAuthentication()
         auth_header = authenticator.get_header(request=request)
-        print("authenticate_with_token: ", str(auth_header))
         if auth_header is None:
             return None
-        print("headers: ", request.headers)
+        raw_header = authenticator.get_raw_token(auth_header)
         try:
-            validated_token = authenticator.get_validated_token(auth_header)
-            print("validated_token: ", str(validated_token))
-            user = self.get_user(validated_token)
-            if user is not None:
-                if user.id_funcionario is not None:
-                    user.funcionario = Funcionario.objects.get(id=user.id_funcionario)
-                if user.matricula is not None:
-                    user.socio = Socio.objects.get(id=user.matricula)
-            return user
+            validated_token = authenticator.get_validated_token(raw_header)
+            user = self.get_user(validated_token.get('id'))
+            return user, validated_token
         except InvalidToken:
-            return None
+            return None, None
         
 class CustomJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
         try:
-            user = UsuarioBackend().authenticate_with_token(request=request)
-            return user
+            user, token = UsuarioBackend().authenticate_with_token(request=request)
+            return user, token
         except AuthenticationFailed:
-            auth_header = self.get_header(request)
-            if auth_header is None:
-                return None
-
-            try:
-                validated_token = super().get_validated_token(auth_header)
-                user = self.get_user(validated_token)
-                return user
-            except AuthenticationFailed:
-                return None
+            return None

@@ -36,18 +36,17 @@ from .authentication import UsuarioBackend, CustomJWTAuthentication
 
 
 class LoginView(APIView):
-
-    
-
     def post(self, request, format=None):
-        # try:
+        try:
             username = request.data.get('username')
             password = request.data.get('password')
             # Authenticate the Usuario model
             # user = authenticate(request, username=username, password=password) 
             # Use the custom authentication backend to authenticate the user
             backend = UsuarioBackend()
-            user = backend.authenticate(request, username=username, password=password)
+            user = authenticate(request, username=username, password=password)
+
+            # user = backend.authenticate(request, username=username, password=password)
 
             if user is not None:
                 refresh = RefreshToken.for_user(user)
@@ -69,27 +68,19 @@ class LoginView(APIView):
                 else:
                     return Response({'detail': 'Invalid credentials'}, status=401)
         
-        # except:
-        #     return Response(
-        #         {"error": "error"},
-        #         status=400
-        #     )
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
         
 class FuncionarioViewSet(GenericAPIView):
     authentication_classes = [CustomJWTAuthentication]
-
-
     permission_classes = [IsAuthenticated]    
     serializer_class = FuncionarioSerializer
     
     def get(self, request, format=None):
         try:
-            try:
-                auth_header = request.headers['Authorization']
-            except KeyError:
-                return Response({'detail': 'Authentication credentials were not found.'}, status=401)
-
-            print(auth_header)
             try:
                 user = self.request.user
             except:
@@ -143,10 +134,9 @@ class FuncionarioViewSet(GenericAPIView):
     
 class FuncionarioDetailViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     serializer_class = FuncionarioSerializer
-
-    permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
         try:
@@ -168,10 +158,8 @@ class FuncionarioDetailViewSet(GenericAPIView):
 
 class AlunoViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
-
-    serializer_class = AlunoSerializer
-
     permission_classes = [IsAuthenticated]
+    serializer_class = AlunoSerializer
 
     def post(self, request, format=None):
         try:
@@ -226,10 +214,8 @@ class AlunoViewSet(GenericAPIView):
 
 class SocioDetailViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
-
-    serializer_class = SocioSerializer
-
     permission_classes = [IsAuthenticated]
+    serializer_class = SocioSerializer
 
     def get_object(self, pk):
         try:
@@ -284,7 +270,6 @@ class SocioDetailViewSet(GenericAPIView):
         
 class UsuarioUserNameViewSet(APIView):
 
-   #serializer_class = 
 
     def get_object(self, name):
         try:
@@ -311,10 +296,8 @@ class UsuarioUserNameViewSet(APIView):
 
 class SocioViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
-
-    serializer_class = SocioSerializer
-
     permission_classes = [IsAuthenticated]
+    serializer_class = SocioSerializer
 
     def post(self, request, format=None):
         try:
@@ -352,10 +335,9 @@ class SocioViewSet(GenericAPIView):
 
 class InstrutorViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
-
+    permission_classes = [IsAuthenticated]
     serializer_class = InstrutorSerializer
 
-    permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         try:
@@ -394,10 +376,9 @@ class InstrutorViewSet(GenericAPIView):
 
 class VooViewSet(GenericAPIView):    
     authentication_classes = [JWTAuthentication]
-
+    permission_classes = [IsAuthenticated]
     serializer_class = VooSerializer
 
-    permission_classes = [IsAuthenticated]
 
     def post(self, request, format=None):
         try:
@@ -461,10 +442,8 @@ class VooViewSet(GenericAPIView):
 
 class VooDetailViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
-
-    serializer_class = VooSerializer
-
     permission_classes = [IsAuthenticated]
+    serializer_class = VooSerializer
 
     def get_object(self, pk):
         try:
@@ -492,10 +471,8 @@ class VooDetailViewSet(GenericAPIView):
         
 class VooSocioDetailViewSet(GenericAPIView):
     authentication_classes = [JWTAuthentication]
-
-    serializer_class = VooSerializer
-
     permission_classes = [IsAuthenticated]
+    serializer_class = VooSerializer
 
     def get_object(self, matricula):
         try:

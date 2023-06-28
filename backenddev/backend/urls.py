@@ -59,4 +59,5 @@ urlpatterns = [
     path('voos/socio/<int:pk>/', VooSocioDetailViewSet.as_view(), name='voo-list-socio'),
     path('voos/<int:pk>/', VooDetailViewSet.as_view(), name='voo-detail'), 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),    
+
 ]
