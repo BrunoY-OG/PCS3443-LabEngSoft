@@ -49,8 +49,7 @@ class CustomUserManager(BaseUserManager):
     
 
 class Funcionario(models.Model):
-    id_funcionario = models.IntegerField(primary_key=True, 
-                            auto_created=True, editable=False)
+    id_funcionario = models.IntegerField(primary_key=True)
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11, unique=True)
     data_nascimento = models.DateField()
@@ -66,8 +65,7 @@ class Socio(models.Model):
         ("I", "Instrutor")
         ]
     
-    matricula = models.IntegerField(primary_key=True, 
-                            auto_created=True, editable=False)
+    matricula = models.IntegerField(primary_key=True)
     categoria = models.CharField(max_length=9, choices=CATEGORIAS)
     nome = models.CharField(max_length=100)
     cpf = models.CharField(max_length=11)
@@ -98,8 +96,7 @@ class Voo(models.Model):
         "D": 1.0
     }
     
-    id_voo = models.IntegerField(primary_key=True, 
-                            auto_created=True, editable=False)
+    id_voo = models.IntegerField(primary_key=True)
     data = models.DateField()
     horario_saida = models.TimeField()
     horario_chegada = models.TimeField()
@@ -112,8 +109,7 @@ class Voo(models.Model):
 
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
-    id_usuario = models.IntegerField(primary_key=True, 
-                            auto_created=True, editable=False)
+    id_usuario = models.IntegerField(primary_key=True)
     username = models.CharField(max_length=30, unique=True)
     is_funcionario = models.BooleanField(default=False)
     is_socio = models.BooleanField(default=False)

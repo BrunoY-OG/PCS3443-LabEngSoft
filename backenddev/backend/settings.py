@@ -135,16 +135,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
     ],
 }
-
-JWT_AUTH = {
-    'JWT_SECRET_KEY': 'hwsN3UVb93QRFeMccmdjEBmpBTvjLGqu2nXbtvq6X2pqxENlPnO4OVt5Y2fRacQclB4',
-    'JWT_EXPIRATION_DELTA': timedelta(days=7),  # Set the token expiration time
-    # Other JWT settings...
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id_usuario',
+    'USER_ID_CLAIM': 'user_id',
 }
 
 SWAGGER_SETTINGS = {
     'DEFAULT_INFO': 'backend.urls.swagger_info',
 }
+AUTHENTICATION_BACKENDS = [
+    'av_system.authentication.UsuarioBackend',
+]

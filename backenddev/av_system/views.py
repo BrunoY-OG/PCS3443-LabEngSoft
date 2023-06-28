@@ -27,16 +27,19 @@ from .serializers import (
 
 from django.contrib.auth import get_user_model, authenticate
 
-
 User = get_user_model()
+
+
+
+
 
 class LoginView(APIView):
     def post(self, request, format=None):
-        try:
+        # try:
             username = request.data.get('username')
             password = request.data.get('password')
-            # For example, using Django's authenticate() function
-            user = authenticate(username=username, password=password)
+            # Authenticate the Usuario model
+            user = authenticate(request, username=username, password=password)
             if user is not None:
                 refresh = RefreshToken.for_user(user)
                 response_data = {
@@ -46,11 +49,11 @@ class LoginView(APIView):
                 return Response(response_data, status=200)
             else:
                 return Response({'detail': 'Invalid credentials'}, status=401)
-        except:
-            return Response(
-                {"error": "error"},
-                status=400
-            )
+        # except:
+        #     return Response(
+        #         {"error": "error"},
+        #         status=400
+        #     )
         
 class FuncionarioViewSet(APIView):
     permission_classes = [IsAuthenticated]
