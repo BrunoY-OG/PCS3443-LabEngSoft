@@ -1,0 +1,865 @@
+{
+	"info": {
+		"_postman_id": "12f28ac4-eee4-4a13-8e8c-9731d330c125",
+		"name": "lab-prog-proj",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12784306",
+		"_collection_link": "https://pcss200.postman.co/workspace/My-Workspace~d6a96a78-ab2f-4e16-8dba-fe57781b8665/collection/12784306-12f28ac4-eee4-4a13-8e8c-9731d330c125?action=share&creator=12784306&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorizationm",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "funcionario",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "superstring",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/login/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"login",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "consulta disp nome",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorizationm",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "username",
+							"value": "qualquer",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/usuario/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"usuario",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Funcionarios List",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTkyOTY3LCJpYXQiOjE2ODc5ODgxNjcsImp0aSI6ImFkYzU3YzFjZDMxOTQxNTFhY2NjNzFlYjBhZmU1ZmZjIiwiaWQiOjF9.0Zwa3izQSqh7EfbbB9NqcWrae5J3taWdX1mZwhEsVM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/funcionarios/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"funcionarios",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Funcionarios Add",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NjAzNDQ0LCJpYXQiOjE2ODc5OTg2NDQsImp0aSI6ImU4ZDlmYzFmOWZhNTRhYjRiY2Q3NzA2ODU3ZTI0NTcyIiwiaWQiOjF9.Nf7_Ko6bnTtdbsfhQUY6T3JojZXXyZe2Be-PcG7sgZs",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "nome",
+							"value": "Func 2",
+							"type": "text"
+						},
+						{
+							"key": "data_nascimento",
+							"value": "1900-01-01",
+							"type": "text"
+						},
+						{
+							"key": "endereco",
+							"value": "av nada",
+							"type": "text"
+						},
+						{
+							"key": "cpf",
+							"value": "29142320046",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "func2",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "superstring",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/funcionarios/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"funcionarios",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Funcionarios Detail",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTkyOTY3LCJpYXQiOjE2ODc5ODgxNjcsImp0aSI6ImFkYzU3YzFjZDMxOTQxNTFhY2NjNzFlYjBhZmU1ZmZjIiwiaWQiOjF9.0Zwa3izQSqh7EfbbB9NqcWrae5J3taWdX1mZwhEsVM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/funcionarios/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"funcionarios",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Alunos Add",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "categoria",
+							"value": "A",
+							"type": "text"
+						},
+						{
+							"key": "nome",
+							"value": "Aluno Teste",
+							"type": "text"
+						},
+						{
+							"key": "cpf",
+							"value": "81145657052",
+							"type": "text"
+						},
+						{
+							"key": "data_nascimento",
+							"value": "1990-10-10",
+							"type": "text"
+						},
+						{
+							"key": "endereco",
+							"value": "Test Address",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "aluno@email.com",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "alunousername",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "alunopassword",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/alunos/create/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"alunos",
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Alunos List",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTkyOTY3LCJpYXQiOjE2ODc5ODgxNjcsImp0aSI6ImFkYzU3YzFjZDMxOTQxNTFhY2NjNzFlYjBhZmU1ZmZjIiwiaWQiOjF9.0Zwa3izQSqh7EfbbB9NqcWrae5J3taWdX1mZwhEsVM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/alunos/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"alunos",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Socios Add",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "categoria",
+							"value": "P",
+							"type": "text"
+						},
+						{
+							"key": "nome",
+							"value": "Instrutor Teste",
+							"type": "text"
+						},
+						{
+							"key": "cpf",
+							"value": "65940424082",
+							"type": "text"
+						},
+						{
+							"key": "data_nascimento",
+							"value": "1990-10-10",
+							"type": "text"
+						},
+						{
+							"key": "endereco",
+							"value": "Test Address",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "instrutor@email.com",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "sociousername",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "instrutorpassword",
+							"type": "text"
+						},
+						{
+							"key": "breve",
+							"value": "testBreve",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/socios/create/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"socios",
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Socios List",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTkyOTY3LCJpYXQiOjE2ODc5ODgxNjcsImp0aSI6ImFkYzU3YzFjZDMxOTQxNTFhY2NjNzFlYjBhZmU1ZmZjIiwiaWQiOjF9.0Zwa3izQSqh7EfbbB9NqcWrae5J3taWdX1mZwhEsVM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/socios/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"socios",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Instrutores Add",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "categoria",
+							"value": "I",
+							"type": "text"
+						},
+						{
+							"key": "nome",
+							"value": "Instrutor Teste",
+							"type": "text"
+						},
+						{
+							"key": "cpf",
+							"value": "88474653037",
+							"type": "text"
+						},
+						{
+							"key": "data_nascimento",
+							"value": "1990-10-10",
+							"type": "text"
+						},
+						{
+							"key": "endereco",
+							"value": "Test Address",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "instrutor@email.com",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "instrutorusername",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "instrutorpassword",
+							"type": "text"
+						},
+						{
+							"key": "breve",
+							"value": "testBreve",
+							"type": "text"
+						},
+						{
+							"key": "nome_do_curso",
+							"value": "testCurso",
+							"type": "text"
+						},
+						{
+							"key": "data_diploma",
+							"value": "2000-10-10",
+							"type": "text"
+						},
+						{
+							"key": "instituicao_diploma",
+							"value": "testInstitution",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/instrutores/create/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"instrutores",
+						"create",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Instrutores List",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTkyOTY3LCJpYXQiOjE2ODc5ODgxNjcsImp0aSI6ImFkYzU3YzFjZDMxOTQxNTFhY2NjNzFlYjBhZmU1ZmZjIiwiaWQiOjF9.0Zwa3izQSqh7EfbbB9NqcWrae5J3taWdX1mZwhEsVM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/instrutores/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"instrutores",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Socios Detail",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTkyOTY3LCJpYXQiOjE2ODc5ODgxNjcsImp0aSI6ImFkYzU3YzFjZDMxOTQxNTFhY2NjNzFlYjBhZmU1ZmZjIiwiaWQiOjF9.0Zwa3izQSqh7EfbbB9NqcWrae5J3taWdX1mZwhEsVM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/socios/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"socios",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Voos Add",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "data",
+							"value": "1900-09-09",
+							"type": "text"
+						},
+						{
+							"key": "horario_saida",
+							"value": "19:09:10",
+							"type": "text"
+						},
+						{
+							"key": "horario_chegada",
+							"value": "20:00:00",
+							"type": "text"
+						},
+						{
+							"key": "parecer",
+							"value": "A",
+							"type": "text"
+						},
+						{
+							"key": "id_socio",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "id_instrutor",
+							"value": "2",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Voos List",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTkyOTY3LCJpYXQiOjE2ODc5ODgxNjcsImp0aSI6ImFkYzU3YzFjZDMxOTQxNTFhY2NjNzFlYjBhZmU1ZmZjIiwiaWQiOjF9.0Zwa3izQSqh7EfbbB9NqcWrae5J3taWdX1mZwhEsVM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/voos/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"voos",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Voos Detail",
+			"protocolProfileBehavior": {
+				"followAuthorizationHeader": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTkyOTY3LCJpYXQiOjE2ODc5ODgxNjcsImp0aSI6ImFkYzU3YzFjZDMxOTQxNTFhY2NjNzFlYjBhZmU1ZmZjIiwiaWQiOjF9.0Zwa3izQSqh7EfbbB9NqcWrae5J3taWdX1mZwhEsVM4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{FUNC_TOKEN}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg4NTgzOTU0LCJpYXQiOjE2ODc5NzkxNTQsImp0aSI6IjM0YTc4MWQ3MDczOTQ3NzI4NDlhYjBiYmVkMTIyODUyIiwiaWQiOjF9.S8Jxk4cu30FwEhUv_FiTnCG_b0AjQx4As3HLNBWng9o",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/voos/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"voos",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
