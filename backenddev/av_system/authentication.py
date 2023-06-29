@@ -41,4 +41,4 @@ class CustomJWTAuthentication(JWTAuthentication):
             user, token = UsuarioBackend().authenticate_with_token(request=request)
             return user, token
         except AuthenticationFailed:
-            return None
+            return None, None

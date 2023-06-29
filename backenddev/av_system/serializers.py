@@ -93,10 +93,11 @@ class SocioSerializer(serializers.ModelSerializer):
     def validate_endereco(self, endereco):
         return _validate_addresslength(endereco)
     
-    def validate_categoria(value):
+    def validate_categoria(self, value):
         valid_choices = [choice[0] for choice in Socio.CATEGORIAS]
         if value not in valid_choices:
             raise serializers.ValidationError('Invalid Categoria')
+        return value
 
     def validate(self, attrs):
         cat = attrs.get('categoria')

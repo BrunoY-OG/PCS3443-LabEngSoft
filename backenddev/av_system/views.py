@@ -175,7 +175,7 @@ class AlunoViewSet(GenericAPIView):
             isFuncionario = request.user.is_funcionario
             if ((not isFuncionario) and (not isInstrutor)):
                 return Response({"detail": "You do not have permission to perform this action."}, status=403)
-            alunos = Socio.objects.filter(is_aluno=True)
+            alunos = Socio.objects.filter(categoria='A')
             serializer = AlunoSerializer(alunos, many=True)
             return Response(serializer.data)
         except:
@@ -236,7 +236,7 @@ class SocioViewSet(GenericAPIView):
             isFuncionario = request.user.is_funcionario
             if ((not isFuncionario) and (not isInstrutor)):
                 return Response({"detail": "You do not have permission to perform this action."}, status=403)
-            socios = Socio.objects.filter(is_socio=True)
+            socios = Socio.objects.filter(categoria='P')
             serializer = SocioSerializer(socios, many=True)
             return Response(serializer.data)
         except:
@@ -250,9 +250,6 @@ class SocioCreateViewSet(GenericAPIView):
 
     def post(self, request, format=None):
         try:
-            if not request.user.is_funcionario:
-                return Response({"detail": "You do not have permission to perform this action."}, status=403)
-
             # Retrieve the request data
             data = request.data
             # Create the Usuario object
@@ -267,13 +264,11 @@ class SocioCreateViewSet(GenericAPIView):
                 "email": data.get("email"),
                 "breve":  data.get("breve"),
             }
-            # Create the Socio object
             socio_serializer = SocioSerializer(data=data_socio)
             if socio_serializer.is_valid():
                 socio = socio_serializer.save()
             else:
                 return Response(socio_serializer.errors, status=400)
-
 
             usuario = User.objects.create_socio(username=username, password=password, matricula=socio)
 
@@ -313,7 +308,7 @@ class SocioDetailViewSet(GenericAPIView):
             socio = self.get_object(pk)
             if socio is None:
                 return Response({"detail": "socio not found."}, status=404)
-            elif socio.is_aluno:
+            elif socio.categoria == 'A':
                 average_parecer = Voo.objects.filter(id_socio=pk) \
                     .aggregate(
                         total_parecer=Sum(
@@ -335,7 +330,7 @@ class SocioDetailViewSet(GenericAPIView):
                 else:
                     socio.nota_ponderada = None
                 serializer = AlunoSerializer(socio)
-            elif socio.is_instrutor:
+            elif socio.categoria == 'I':
                 serializer = InstrutorSerializer(socio)
             else:
                 serializer = SocioSerializer(socio)
@@ -381,7 +376,7 @@ class InstrutorViewSet(GenericAPIView):
             isFuncionario = request.user.is_funcionario
             if ((not isFuncionario) and (not isInstrutor)):
                 return Response({"detail": "You do not have permission to perform this action."}, status=403)
-            socios = Socio.objects.filter(is_instrutor=True)
+            socios = Socio.objects.filter(categoria='I')
             serializer = InstrutorSerializer(socios, many=True)
             return Response(serializer.data)
         except:
@@ -394,14 +389,12 @@ class InstrutorCreateViewSet(GenericAPIView):
     serializer_class = InstrutorSerializer
     def post(self, request, format=None):
         try:
-            if not request.user.is_funcionario:
-                return Response({"detail": "You do not have permission to perform this action."}, status=403)
-
             # Retrieve the request data
             data = request.data
             # Create the Usuario object
             username = data.get("username")
             password = data.get("password")
+            print("socio:")
             data_instrutor = {
                 "categoria": data.get("categoria"),
                 "nome": data.get("nome"),
