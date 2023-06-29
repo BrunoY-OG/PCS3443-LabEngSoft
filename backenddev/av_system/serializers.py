@@ -111,6 +111,7 @@ class SocioSerializer(serializers.ModelSerializer):
         return attrs
 
 class AlunoSerializer(serializers.ModelSerializer):
+    nota_ponderada = serializers.FloatField(allow_null=True)
     class Meta:
         model = Socio
         fields = '__all__'

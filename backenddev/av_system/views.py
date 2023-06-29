@@ -313,7 +313,10 @@ class SocioDetailViewSet(GenericAPIView):
                     .aggregate(
                         total_parecer=Sum(
                             Case(
-                                When(parecer__in=Voo.NOTA_CONCEITO_mapping.keys(), then=Voo.NOTA_CONCEITO_mapping.get("parecer")),
+                                When(parecer__in="A", then=4),
+                                When(parecer__in="B", then=3),
+                                When(parecer__in="C", then=2),
+                                When(parecer__in="D", then=1),
                                 default=0,
                                 output_field=FloatField()
                             )
@@ -321,11 +324,13 @@ class SocioDetailViewSet(GenericAPIView):
                         count_parecer=Count(
                             Case(
                                 When(parecer__in=Voo.NOTA_CONCEITO_mapping.keys(), then=1),
-                                default=0
+                                default=1
                             )
                         )
                     )
                 if average_parecer["count_parecer"] > 0:
+                    print("alunoMedia",average_parecer["total_parecer"])
+                    print("alunoMedia",average_parecer["count_parecer"])
                     socio.nota_ponderada = average_parecer["total_parecer"] / average_parecer["count_parecer"]
                 else:
                     socio.nota_ponderada = None
