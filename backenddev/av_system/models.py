@@ -54,7 +54,7 @@ class Funcionario(models.Model):
     data_nascimento = models.DateField()
     endereco = models.CharField(max_length=100)
     class Meta:
-        indexes = [ models.Index(fields=["id"]) ]
+        # indexes = [ models.Index(fields=["id"]) ]
         ordering = ["nome"]
 
 class Socio(models.Model):

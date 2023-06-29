@@ -154,3 +154,4 @@ AUTHENTICATION_BACKENDS = [
     'av_system.authentication.UsuarioBackend',
 ]
 APPEND_SLASH = False
+AUTH_USER_MODEL = 'av_system.Usuario'

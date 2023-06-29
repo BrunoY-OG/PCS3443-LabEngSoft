@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.generics import GenericAPIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from datetime import date, datetime
 from django.db.models import (
     Case, 
     When, 
@@ -38,8 +38,8 @@ from .authentication import UsuarioBackend, CustomJWTAuthentication
 class LoginView(APIView):
     def post(self, request, format=None):
         try:
-            username = request.data.get('username')
-            password = request.data.get('password')
+            username = request.data.get("username")
+            password = request.data.get("password")
             # Authenticate the Usuario model
             # user = authenticate(request, username=username, password=password) 
             # Use the custom authentication backend to authenticate the user
@@ -51,8 +51,8 @@ class LoginView(APIView):
             if user is not None:
                 refresh = RefreshToken.for_user(user)
                 response_data = {
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
                 }
                 return Response(response_data, status=200)
             else:
@@ -61,12 +61,12 @@ class LoginView(APIView):
                 if user is not None:
                     refresh = RefreshToken.for_user(user)
                     response_data = {
-                        'refresh': str(refresh),
-                        'access': str(refresh.access_token),
+                        "refresh": str(refresh),
+                        "access": str(refresh.access_token),
                     }
                     return Response(response_data, status=200)
                 else:
-                    return Response({'detail': 'Invalid credentials'}, status=401)
+                    return Response({"detail": "Invalid credentials"}, status=401)
         
         except:
             return Response(
@@ -84,7 +84,7 @@ class FuncionarioViewSet(GenericAPIView):
             try:
                 user = self.request.user
             except:
-                return Response({'detail': 'Invalid or expired token.'}, status=401)
+                return Response({"detail": "Invalid or expired token."}, status=401)
             
             if not user.is_funcionario:
                 return Response({"detail": "You do not have permission to perform this action."}, status=403) 
@@ -102,22 +102,29 @@ class FuncionarioViewSet(GenericAPIView):
         try:
             if not request.user.is_funcionario:
                 return Response({"detail": "You do not have permission to perform this action."}, status=403)
-
             # Retrieve the request data
             data = request.data
             # Create the Usuario object
-            username = data.get('username')
-            password = data.get('password')
+            username = data.get("username")
+            password = data.get("password")
 
-            # Create the Funcionario object
-            funcionario_serializer = FuncionarioSerializer(data=data)
+
+            data_func = {
+                "nome": data.get("nome"),
+                "data_nascimento": datetime.strptime(data.get("data_nascimento"), '%Y-%m-%d').date(),
+                "cpf": data.get("cpf"),
+                "endereco": data.get("endereco")
+            }
+            funcionario_serializer = FuncionarioSerializer(data=data_func)
             if funcionario_serializer.is_valid():
                 funcionario = funcionario_serializer.save()
-            else:
+            else: 
                 return Response(funcionario_serializer.errors, status=400)
-
-
-            usuario = User.objects.create_funcionario(username=username, password=password, id_funcionario=funcionario.id)
+            try:
+                usuario = User.objects.create_funcionario(username=username, password=password, id_funcionario=funcionario)
+            except Exception as e:
+                error_message = str(e)
+                print("funcionario_serializer E:", error_message)
 
             # Return the response
             response_data = {
@@ -133,7 +140,7 @@ class FuncionarioViewSet(GenericAPIView):
             )
     
 class FuncionarioDetailViewSet(GenericAPIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     serializer_class = FuncionarioSerializer
@@ -157,7 +164,7 @@ class FuncionarioDetailViewSet(GenericAPIView):
             return Response({"detail": "Funcionario not found."}, status=404)
 
 class AlunoViewSet(GenericAPIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = AlunoSerializer
 
@@ -169,18 +176,26 @@ class AlunoViewSet(GenericAPIView):
             # Retrieve the request data
             data = request.data
             # Create the Usuario object
-            username = data.get('username')
-            password = data.get('password')
+            username = data.get("username")
+            password = data.get("password")
 
+            data_aluno = {
+                "categoria": data.get("categoria"),
+                "nome": data.get("nome"),
+                "data_nascimento": datetime.strptime(data.get("data_nascimento"), '%Y-%m-%d').date(),
+                "cpf": data.get("cpf"),
+                "endereco": data.get("endereco"),
+                "email": data.get("email"),
+            }
             # Create the Aluno object
-            aluno_serializer = AlunoSerializer(data=data)
+            aluno_serializer = AlunoSerializer(data=data_aluno)
             if aluno_serializer.is_valid():
                 aluno = aluno_serializer.save()
             else:
                 return Response(aluno_serializer.errors, status=400)
 
 
-            usuario = User.objects.create_aluno(username=username, password=password, matricula=aluno.id)
+            usuario = User.objects.create_aluno(username=username, password=password, matricula=aluno)
 
             # Return the response
             response_data = {
@@ -213,7 +228,7 @@ class AlunoViewSet(GenericAPIView):
 
 
 class SocioDetailViewSet(GenericAPIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = SocioSerializer
 
@@ -252,8 +267,8 @@ class SocioDetailViewSet(GenericAPIView):
                             )
                         )
                     )
-                if average_parecer['count_parecer'] > 0:
-                    socio.nota_ponderada = average_parecer['total_parecer'] / average_parecer['count_parecer']
+                if average_parecer["count_parecer"] > 0:
+                    socio.nota_ponderada = average_parecer["total_parecer"] / average_parecer["count_parecer"]
                 else:
                     socio.nota_ponderada = None
                 serializer = AlunoSerializer(socio)
@@ -280,7 +295,7 @@ class UsuarioUserNameViewSet(APIView):
 
     def post(self, request, format=None):
         try:           
-            username = request.data.get('username')
+            username = request.data.get("username")
             user = self.get_object(username)
             if user is None:
                 return Response({"usernameFree":True}, status=200)
@@ -295,7 +310,7 @@ class UsuarioUserNameViewSet(APIView):
         
 
 class SocioViewSet(GenericAPIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = SocioSerializer
 
@@ -307,18 +322,26 @@ class SocioViewSet(GenericAPIView):
             # Retrieve the request data
             data = request.data
             # Create the Usuario object
-            username = data.get('username')
-            password = data.get('password')
-
+            username = data.get("username")
+            password = data.get("password")
+            data_socio = {
+                "categoria": data.get("categoria"),
+                "nome": data.get("nome"),
+                "data_nascimento": datetime.strptime(data.get("data_nascimento"), '%Y-%m-%d').date(),
+                "cpf": data.get("cpf"),
+                "endereco": data.get("endereco"),
+                "email": data.get("email"),
+                "breve":  data.get("breve"),
+            }
             # Create the Socio object
-            socio_serializer = SocioSerializer(data=data)
+            socio_serializer = SocioSerializer(data=data_socio)
             if socio_serializer.is_valid():
                 socio = socio_serializer.save()
             else:
                 return Response(socio_serializer.errors, status=400)
 
 
-            usuario = User.objects.create_socio(username=username, password=password, matricula=socio.id)
+            usuario = User.objects.create_socio(username=username, password=password, matricula=socio)
 
             # Return the response
             response_data = {
@@ -334,7 +357,7 @@ class SocioViewSet(GenericAPIView):
             )
 
 class InstrutorViewSet(GenericAPIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = InstrutorSerializer
 
@@ -347,18 +370,29 @@ class InstrutorViewSet(GenericAPIView):
             # Retrieve the request data
             data = request.data
             # Create the Usuario object
-            username = data.get('username')
-            password = data.get('password')
-
+            username = data.get("username")
+            password = data.get("password")
+            data_instrutor = {
+                "categoria": data.get("categoria"),
+                "nome": data.get("nome"),
+                "data_nascimento": datetime.strptime(data.get("data_nascimento"), '%Y-%m-%d').date(),
+                "cpf": data.get("cpf"),
+                "endereco": data.get("endereco"),
+                "email": data.get("email"),
+                "breve":  data.get("breve"),
+                "nome_do_curso": data.get("nome_do_curso"),
+                "data_diploma": datetime.strptime(data.get("data_diploma"), '%Y-%m-%d').date(),
+                "instituicao_diploma": data.get("instituicao_diploma"),
+            }
             # Create the Instrutor object
-            instrutor_serializer = InstrutorSerializer(data=data)
+            instrutor_serializer = InstrutorSerializer(data=data_instrutor)
             if instrutor_serializer.is_valid():
                 instrutor = instrutor_serializer.save()
             else:
                 return Response(instrutor_serializer.errors, status=400)
 
 
-            usuario = User.objects.create_instrutor(username=username, password=password, matricula=instrutor.id)
+            usuario = User.objects.create_instrutor(username=username, password=password, matricula=instrutor)
 
             # Return the response
             response_data = {
@@ -375,7 +409,7 @@ class InstrutorViewSet(GenericAPIView):
     
 
 class VooViewSet(GenericAPIView):    
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = VooSerializer
 
@@ -393,18 +427,18 @@ class VooViewSet(GenericAPIView):
             voo_serializer = VooSerializer(data=data)
             if voo_serializer.is_valid():
                 if isInstrutor:
-                    if (not data.get('id_instrutor')):
+                    if (not data.get("id_instrutor")):
                         return Response({"error": "invalid ID"}, status=400)
-                    elif (data.get('id_instrutor') != request.user.id_socio):
+                    elif (data.get("id_instrutor") != request.user.id_socio):
                         return Response({"error": "invalid ID"}, status=403)
                     valid_choices = [choice[0] for choice in Voo.NOTA_CONCEITO]
-                    if (data.get('parecer') not in valid_choices):
+                    if (data.get("parecer") not in valid_choices):
                         return Response({"error": "invalid Parecer"}, status=400)
                     voo = voo_serializer.save()
                 elif isFuncionario:
-                    if (data.get('id_instrutor')):
+                    if (data.get("id_instrutor")):
                         return Response({"error": "invalid ID"}, status=400)
-                    if (data.get('parecer')):
+                    if (data.get("parecer")):
                         return Response({"error": "invalid ID"}, status=400)
                     voo = voo_serializer.save()
             else:
@@ -441,7 +475,7 @@ class VooViewSet(GenericAPIView):
             )
 
 class VooDetailViewSet(GenericAPIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = VooSerializer
 
@@ -470,7 +504,7 @@ class VooDetailViewSet(GenericAPIView):
         
         
 class VooSocioDetailViewSet(GenericAPIView):
-    authentication_classes = [JWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = VooSerializer
 

@@ -1,3 +1,4 @@
+from ast import parse
 from rest_framework import serializers
 from .models import Usuario, Funcionario, Socio, Voo
 from datetime import date, datetime
@@ -21,35 +22,33 @@ def _validate_data_nascimento(dob):
     return dob
 
 def _validate_date(date):
-    current_date = datetime.now().date()
+    current_date = datetime.now().date()    
     if date > current_date:
         raise serializers.ValidationError("Invalid Date")
     return date
 
 def _validate_cpf(cpf):
-    _cpf = cpf.replace(".", "").replace("-", "")  # Remove formatting characters
-    if (len(_cpf) != 11):
-        raise serializers.ValidationError("Invalid CPF")
-    if cpf == cpf[0] * 11:
-        raise serializers.ValidationError("Invalid CPF")
-    
-    check_digits = cpf[-2:]
-    cpf_digits = cpf[:-2]
+    # Obtém apenas os números do CPF, ignorando pontuações
+    numbers = [int(digit) for digit in cpf if digit.isdigit()]
 
-    total = 0
-    for i in range(9):
-        total += int(cpf_digits[i]) * (10 - i)
-    digit_1 = (total * 10) % 11 if total % 11 >= 2 else 0
-
-    total = 0
-    for i in range(10):
-        total += int(cpf_digits[i]) * (11 - i)
-    digit_2 = (total * 10) % 11 if total % 11 >= 2 else 0
-
-    result = check_digits == f"{digit_1}{digit_2}"
-    if (not result):
+    # Verifica se o CPF possui 11 números ou se todos são iguais:
+    if len(numbers) != 11 or len(set(numbers)) == 1:
         raise serializers.ValidationError("Invalid CPF")
-    return cpf
+
+    # Validação do primeiro dígito verificador:
+    sum_of_products = sum(a*b for a, b in zip(numbers[0:9], range(10, 1, -1)))
+    expected_digit = (sum_of_products * 10 % 11) % 10
+    if numbers[9] != expected_digit:
+        raise serializers.ValidationError("Invalid CPF")
+
+    # Validação do segundo dígito verificador:
+    sum_of_products = sum(a*b for a, b in zip(numbers[0:10], range(11, 1, -1)))
+    expected_digit = (sum_of_products * 10 % 11) % 10
+    if numbers[10] != expected_digit:
+        raise serializers.ValidationError("Invalid CPF")
+
+    return True
+
 
 def _validate_namelength(value):
     if (len(value.split()) < 2):
@@ -64,21 +63,23 @@ def _validate_addresslength(value):
 
 
 class FuncionarioSerializer(serializers.ModelSerializer):    
-    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
+
+    def validate_data_nascimento(self, dob):
+        return _validate_data_nascimento(dob) 
+
+    def validate_cpf(self, cpf):
+        return _validate_cpf(cpf)
+
+    def validate_nome(self, nome):
+        return _validate_namelength(nome)
+
+    def validate_endereco(self, endereco):
+        return _validate_addresslength(endereco)
     class Meta:
         model = Funcionario
         fields = '__all__'
-    def validate_data_nascimento(self, dob):
-        return _validate_data_nascimento(dob)
-    def validate_cpf(self, cpf):
-        return _validate_cpf(cpf)
-    def validate_nome(self, nome):
-        return _validate_namelength(nome)
-    def validate_endereco(self, endereco):
-        return _validate_addresslength(endereco)
     
 class SocioSerializer(serializers.ModelSerializer):
-    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Socio
         fields = '__all__'
@@ -109,7 +110,6 @@ class SocioSerializer(serializers.ModelSerializer):
         return attrs
 
 class AlunoSerializer(serializers.ModelSerializer):
-    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Socio
         fields = '__all__'
@@ -139,7 +139,6 @@ class AlunoSerializer(serializers.ModelSerializer):
     
 
 class InstrutorSerializer(serializers.ModelSerializer):
-    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Socio
         fields = '__all__'
@@ -177,7 +176,6 @@ class InstrutorSerializer(serializers.ModelSerializer):
 class VooSerializer(serializers.ModelSerializer):
     teacher_set = SocioSerializer(read_only=True)
     associate_set = SocioSerializer(read_only=True)
-    id = serializers.HiddenField(default = CurrentViewKwargs("pk"))
     class Meta:
         model = Voo
         fields = '__all__'
