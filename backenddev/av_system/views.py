@@ -168,11 +168,26 @@ class AlunoViewSet(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = AlunoSerializer
 
+
+    def get(self, request, format=None):
+        try:
+            isInstrutor = request.user.is_instrutor
+            isFuncionario = request.user.is_funcionario
+            if ((not isFuncionario) and (not isInstrutor)):
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+            alunos = Socio.objects.filter(is_aluno=True)
+            serializer = AlunoSerializer(alunos, many=True)
+            return Response(serializer.data)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
+
+class AlunoCreateViewSet(GenericAPIView):
+    serializer_class = AlunoSerializer
     def post(self, request, format=None):
         try:
-            if not request.user.is_funcionario:
-                return Response({"detail": "You do not have permission to perform this action."}, status=403)
-
             # Retrieve the request data
             data = request.data
             # Create the Usuario object
@@ -210,15 +225,19 @@ class AlunoViewSet(GenericAPIView):
                 status=400
             )
     
-
+    
+class SocioViewSet(GenericAPIView):
+    authentication_classes = [CustomJWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = SocioSerializer
     def get(self, request, format=None):
         try:
             isInstrutor = request.user.is_instrutor
             isFuncionario = request.user.is_funcionario
             if ((not isFuncionario) and (not isInstrutor)):
                 return Response({"detail": "You do not have permission to perform this action."}, status=403)
-            alunos = Socio.objects.filter(is_aluno=True)
-            serializer = AlunoSerializer(alunos, many=True)
+            socios = Socio.objects.filter(is_socio=True)
+            serializer = SocioSerializer(socios, many=True)
             return Response(serializer.data)
         except:
             return Response(
@@ -226,6 +245,50 @@ class AlunoViewSet(GenericAPIView):
                 status=400
             )
 
+class SocioCreateViewSet(GenericAPIView):
+    serializer_class = SocioSerializer
+
+    def post(self, request, format=None):
+        try:
+            if not request.user.is_funcionario:
+                return Response({"detail": "You do not have permission to perform this action."}, status=403)
+
+            # Retrieve the request data
+            data = request.data
+            # Create the Usuario object
+            username = data.get("username")
+            password = data.get("password")
+            data_socio = {
+                "categoria": data.get("categoria"),
+                "nome": data.get("nome"),
+                "data_nascimento": datetime.strptime(data.get("data_nascimento"), '%Y-%m-%d').date(),
+                "cpf": data.get("cpf"),
+                "endereco": data.get("endereco"),
+                "email": data.get("email"),
+                "breve":  data.get("breve"),
+            }
+            # Create the Socio object
+            socio_serializer = SocioSerializer(data=data_socio)
+            if socio_serializer.is_valid():
+                socio = socio_serializer.save()
+            else:
+                return Response(socio_serializer.errors, status=400)
+
+
+            usuario = User.objects.create_socio(username=username, password=password, matricula=socio)
+
+            # Return the response
+            response_data = {
+                "detail": "Socio and Usuario created successfully.",
+                "socio_id": socio.id,
+                "usuario_id": usuario.id
+            }
+            return Response(response_data, status=201)
+        except:
+            return Response(
+                {"error": "error"},
+                status=400
+            )
 
 class SocioDetailViewSet(GenericAPIView):
     authentication_classes = [CustomJWTAuthentication]
@@ -284,8 +347,6 @@ class SocioDetailViewSet(GenericAPIView):
             )
         
 class UsuarioUserNameViewSet(APIView):
-
-
     def get_object(self, name):
         try:
             return Usuario.objects.get(username=name)
@@ -309,59 +370,28 @@ class UsuarioUserNameViewSet(APIView):
             )
         
 
-class SocioViewSet(GenericAPIView):
+    
+class InstrutorViewSet(GenericAPIView):
     authentication_classes = [CustomJWTAuthentication]
     permission_classes = [IsAuthenticated]
-    serializer_class = SocioSerializer
-
-    def post(self, request, format=None):
+    serializer_class = InstrutorSerializer
+    def get(self, request, format=None):
         try:
-            if not request.user.is_funcionario:
+            isInstrutor = request.user.is_instrutor
+            isFuncionario = request.user.is_funcionario
+            if ((not isFuncionario) and (not isInstrutor)):
                 return Response({"detail": "You do not have permission to perform this action."}, status=403)
-
-            # Retrieve the request data
-            data = request.data
-            # Create the Usuario object
-            username = data.get("username")
-            password = data.get("password")
-            data_socio = {
-                "categoria": data.get("categoria"),
-                "nome": data.get("nome"),
-                "data_nascimento": datetime.strptime(data.get("data_nascimento"), '%Y-%m-%d').date(),
-                "cpf": data.get("cpf"),
-                "endereco": data.get("endereco"),
-                "email": data.get("email"),
-                "breve":  data.get("breve"),
-            }
-            # Create the Socio object
-            socio_serializer = SocioSerializer(data=data_socio)
-            if socio_serializer.is_valid():
-                socio = socio_serializer.save()
-            else:
-                return Response(socio_serializer.errors, status=400)
-
-
-            usuario = User.objects.create_socio(username=username, password=password, matricula=socio)
-
-            # Return the response
-            response_data = {
-                "detail": "Socio and Usuario created successfully.",
-                "socio_id": socio.id,
-                "usuario_id": usuario.id
-            }
-            return Response(response_data, status=201)
+            socios = Socio.objects.filter(is_instrutor=True)
+            serializer = InstrutorSerializer(socios, many=True)
+            return Response(serializer.data)
         except:
             return Response(
                 {"error": "error"},
                 status=400
             )
-
-class InstrutorViewSet(GenericAPIView):
-    authentication_classes = [CustomJWTAuthentication]
-    permission_classes = [IsAuthenticated]
+        
+class InstrutorCreateViewSet(GenericAPIView):
     serializer_class = InstrutorSerializer
-
-
     def post(self, request, format=None):
         try:
             if not request.user.is_funcionario:

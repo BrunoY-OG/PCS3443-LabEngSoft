@@ -47,7 +47,7 @@ def _validate_cpf(cpf):
     if numbers[10] != expected_digit:
         raise serializers.ValidationError("Invalid CPF")
 
-    return True
+    return cpf
 
 
 def _validate_namelength(value):
