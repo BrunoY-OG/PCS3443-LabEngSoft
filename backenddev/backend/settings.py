@@ -144,7 +144,6 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'id',
     'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
-    # other settings...
 }
 
 SWAGGER_SETTINGS = {
