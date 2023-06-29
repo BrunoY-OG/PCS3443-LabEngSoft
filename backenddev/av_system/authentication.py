@@ -26,7 +26,7 @@ class UsuarioBackend(BaseBackend):
         authenticator = CustomJWTAuthentication()
         auth_header = authenticator.get_header(request=request)
         if auth_header is None:
-            return None
+            return None, None
         raw_header = authenticator.get_raw_token(auth_header)
         try:
             validated_token = authenticator.get_validated_token(raw_header)

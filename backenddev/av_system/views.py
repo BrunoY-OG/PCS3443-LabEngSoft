@@ -446,23 +446,33 @@ class VooViewSet(GenericAPIView):
 
             # Retrieve the request data
             data = request.data
-
-            voo_serializer = VooSerializer(data=data)
+            data_voo ={                
+                "data": datetime.strptime(data.get("data"), '%Y-%m-%d').date(),
+                "horario_saida": datetime.strptime(data.get("horario_saida"), "%H:%M:%S").time(),
+                "horario_chegada": datetime.strptime(data.get("horario_chegada"), "%H:%M:%S").time(),
+                "parecer": data.get("parecer"),
+                "id_socio": data.get("id_socio"),
+                "id_instrutor": data.get("id_instrutor"),
+            }
+            voo_serializer = VooSerializer(data=data_voo)
             if voo_serializer.is_valid():
                 if isInstrutor:
                     if (not data.get("id_instrutor")):
-                        return Response({"error": "invalid ID"}, status=400)
+                        return Response({"error": "Missing Instructor ID"}, status=400)
                     elif (data.get("id_instrutor") != request.user.id_socio):
-                        return Response({"error": "invalid ID"}, status=403)
+                        return Response({"error": "invalid Instructor ID"}, status=403)
                     valid_choices = [choice[0] for choice in Voo.NOTA_CONCEITO]
                     if (data.get("parecer") not in valid_choices):
                         return Response({"error": "invalid Parecer"}, status=400)
                     voo = voo_serializer.save()
                 elif isFuncionario:
-                    if (data.get("id_instrutor")):
-                        return Response({"error": "invalid ID"}, status=400)
-                    if (data.get("parecer")):
-                        return Response({"error": "invalid ID"}, status=400)
+                    if (not data.get("id_instrutor")):
+                        return Response({"error": "Missing Instructor ID"}, status=400)
+                    if (not data.get("parecer")):
+                        return Response({"error": "Missing Parecer"}, status=400)
+                    valid_choices = [choice[0] for choice in Voo.NOTA_CONCEITO]
+                    if (data.get("parecer") not in valid_choices):
+                        return Response({"error": "invalid Parecer"}, status=400)
                     voo = voo_serializer.save()
             else:
                 return Response(voo_serializer.errors, status=400)
