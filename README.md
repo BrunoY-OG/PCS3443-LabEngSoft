@@ -2,5 +2,7 @@
 
 pip install django
 pip install djangorestframework
-pip install djangorestframework-jwt
+pip install djangorestframework_jwt
+pip install djangorestframework_simplejwt
+
 pip install drf-yasg
